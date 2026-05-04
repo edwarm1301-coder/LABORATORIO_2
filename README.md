@@ -386,24 +386,76 @@ Se observa que, aparece root@79f101acddf2, esto indica que nos encontramos dentr
 # Configuración de IP en Fedora:
 <img width="1775" height="578" alt="image" src="https://github.com/user-attachments/assets/3419c75c-ea6f-436f-9d6d-ffe0f2bba705" />
 
+INSTALACIÓN MV ARCHLINUX
+
+Software - VirtualBox Para Instalación De Archlinux:
+
+•	Configuración Inicial:
+
+<img width="1177" height="661" alt="image" src="https://github.com/user-attachments/assets/3d4aeeb8-d7ec-401c-bd87-0109e1b1db6d" />
+
+<img width="1177" height="657" alt="image" src="https://github.com/user-attachments/assets/071d29b1-ef69-478e-834e-b8df77b0a383" />
+
+<img width="1163" height="653" alt="image" src="https://github.com/user-attachments/assets/8b8d3343-6444-4cb7-b658-af0f0ea56ef5" />
+
+<img width="1169" height="655" alt="image" src="https://github.com/user-attachments/assets/f092cb43-7e8c-4a30-af7b-c1635e96a526" />
+
+<img width="1175" height="632" alt="image" src="https://github.com/user-attachments/assets/53789667-d9e1-46fa-a2dc-93dbf19a0cc8" />
+
+<img width="1179" height="625" alt="image" src="https://github.com/user-attachments/assets/de782cfd-b385-4d28-9400-d33ef5402d8b" />
+
+<img width="1167" height="616" alt="image" src="https://github.com/user-attachments/assets/27b510dc-ef3b-4e04-a3fe-c1d327167fde" />
+
+<img width="1190" height="636" alt="image" src="https://github.com/user-attachments/assets/324a5e01-a3a7-4416-89a3-a8b848f28240" />
+
+<img width="1180" height="623" alt="image" src="https://github.com/user-attachments/assets/4c868a96-e4cd-40e9-a6bc-8cf4ccb6bf3f" />
+
+<img width="1164" height="654" alt="image" src="https://github.com/user-attachments/assets/22dc77b9-8546-49c6-bc07-1e61794797fa" />
+
+Configuración De IP Estática En Archlinux:
+
+•	Ejecutamos La Consola Como Administradores.
+              
+sudo nano /etc/systemd/network/20-wired.network
 
 
+<img width="1143" height="760" alt="image" src="https://github.com/user-attachments/assets/47003a34-d541-403c-bf3c-7b61162466c3" />
+
+[Match]
+Name=enp0s3
+
+[Network]
+Address=192.168.20.20
+netmask=255.255.255.0
+Gateway=192.168.20.1
+
+<img width="1158" height="791" alt="image" src="https://github.com/user-attachments/assets/90db7aac-6f51-4008-947f-9d13c9a09b6c" />
 
 
+Activa Servicios.
+
+sudo systemctl enable systemd-networkd
+sudo systemctl restart systemd-networkd
+
+sudo systemctl enable systemd-resolved
+sudo systemctl restart systemd-resolved
 
 
+DNS – (Si se quiere salir hacia internet)
 
+sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
+Reinicia la MV.
 
+sudo reboot
 
+Verificación de la configuración realizada.
 
+ip a
+ip route
+ping -c 3 google.com
 
-
-
-
-
-
-
+<img width="1200" height="380" alt="image" src="https://github.com/user-attachments/assets/cf048408-32e4-4bc6-884a-bd8eaf2949d7" />
 
 
 
