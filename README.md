@@ -93,7 +93,235 @@ KALI LINUX:
 
 
 
+# Instalacion Servidor Debian LAB2
 
+Esta guia cubre la instalacion y configuracion basica del servidor Debian para el laboratorio 2. Sigue los pasos en orden para evitar errores de dependencias.
+
+---
+
+## Paso 1: Instalar MariaDB
+
+Esto tarda aproximadamente 3 minutos. MariaDB es la base de datos que van a necesitar tanto Zabbix como pmacct, asi que es lo primero que hay que dejar listo.
+
+```bash
+sudo apt install -y mariadb-server
+```
+<img width="801" height="140" alt="image" src="https://github.com/user-attachments/assets/671ff53a-80d4-4716-9364-de64df226c20" />
+
+
+---
+
+## Paso 2: Instalar Zabbix
+
+### 2.1 Descargar el paquete de release
+
+```bash
+wget -q https://repo.zabbix.com/zabbix/6.4/debian/pool/main/z/zabbix-release/zabbix-release_6.4-1+debian12_all.deb
+```
+<img width="887" height="132" alt="image" src="https://github.com/user-attachments/assets/6592dc4e-cecd-48f3-9180-ffaefb798c62" />
+
+
+### 2.2 Instalar el paquete de release
+
+```bash
+sudo dpkg -i zabbix-release_6.4-1+debian12_all.deb
+```
+
+### 2.3 Actualizar indices 
+
+```bash
+sudo apt update
+```
+
+### 2.4 Instalar Zabbix completo
+
+> **Nota sobre errores de firma GPG:** En Debian 13 es comun que aparezcan errores de firma GPG en el repositorio de Zabbix. La solucion es saltarse la verificacion y usar lo que esta disponible en los repositorios oficiales.
+
+```bash
+sudo apt update --allow-insecure-repositories --allow-unauthenticated && sudo apt upgrade -y
+```
+<img width="858" height="213" alt="image" src="https://github.com/user-attachments/assets/8bbb5bd4-0928-4b7a-9db1-2182619582ed" />
+
+<img width="830" height="372" alt="image" src="https://github.com/user-attachments/assets/7ac075c0-1e33-4004-947a-5c01c0834b03" />
+
+
+```bash
+sudo apt install -y --allow-unauthenticated zabbix-apache-conf zabbix-sql-scripts
+```
+
+### 2.5 Instalar todos los componentes de Zabbix
+
+```bash
+sudo apt install -y zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf \
+    zabbix-sql-scripts zabbix-agent mariadb-server
+```
+<img width="826" height="403" alt="image" src="https://github.com/user-attachments/assets/4d940fdb-9ff6-4632-a44e-d48f2cb6545c" />
+
+
+### 2.6 Configurar la base de datos
+
+Esto crea la base de datos de Zabbix y el usuario con sus permisos. Ejecuten el bloque completo de una vez:
+
+```bash
+sudo mysql -u root << 'EOF'
+DROP DATABASE IF EXISTS zabbix;
+DROP USER IF EXISTS 'zabbix'@'localhost';
+CREATE DATABASE zabbix CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+CREATE USER 'zabbix'@'localhost' IDENTIFIED BY 'zabbixpass';
+GRANT ALL PRIVILEGES ON zabbix.* TO 'zabbix'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+EOF
+```
+<img width="763" height="385" alt="image" src="https://github.com/user-attachments/assets/444e3d0f-7ddf-4fc9-a755-39c1b44d3e8b" />
+
+
+### 2.7 Importar el esquema de la base de datos
+
+```bash
+zcat /usr/share/zabbix-sql-scripts/mysql/server.sql.gz | mysql -u zabbix -pzabbixpass zabbix
+```
+
+### 2.8 Editar el archivo de configuracion de Zabbix
+
+```bash
+sudo nano /etc/zabbix/zabbix_server.conf
+```
+
+Busquen las siguientes lineas y dejelas asi (o agrefuenlas si no estan):
+
+```
+DBName=zabbix
+DBUser=zabbix
+DBPassword=zabbixpass
+```
+
+Guardar con `Ctrl+O` -> `Enter` -> `Ctrl+X`
+
+### 2.9 Habilitar y reiniciar los servicios
+
+```bash
+sudo systemctl restart zabbix-server-mysql zabbix-agent grafana-server apache2
+sudo systemctl enable zabbix-server-mysql zabbix-agent grafana-server apache2
+```
+
+---
+
+## Paso 3: Configurar VLANs y herramientas de red
+
+Esta parte configura las VLANs del servidor. Tarda aproximadamente 5 minutos.
+
+### 3.1 Cargar el modulo 8021q
+
+```bash
+sudo modprobe 8021q
+echo "8021q" | sudo tee -a /etc/modules
+```
+<img width="913" height="163" alt="image" src="https://github.com/user-attachments/assets/b6960dd4-8929-449f-ba78-768e157aebc2" />
+
+
+### 3.2 Habilitar IP Forwarding
+
+```bash
+sudo sysctl -w net.ipv4.ip_forward=1
+echo "net.ipv4.ip_forward=1" | sudo tee -a /etc/sysctl.conf
+```
+<img width="842" height="82" alt="image" src="https://github.com/user-attachments/assets/8a46256d-3392-43da-95bf-7a16d6252c9e" />
+
+
+### 3.3 Crear las interfaces VLAN
+
+```bash
+sudo ip link set enp0s8 up
+sudo ip link add link enp0s8 name enp0s8.10 type vlan id 10
+sudo ip link add link enp0s8 name enp0s8.20 type vlan id 20
+sudo ip link set enp0s8.10 up
+sudo ip link set enp0s8.20 up
+```
+<img width="896" height="107" alt="image" src="https://github.com/user-attachments/assets/06151d86-a7ae-40fc-b06e-d8cd04856c2d" />
+
+
+### 3.4 Asignar IPs a las VLANs
+
+```bash
+sudo ip addr add 192.168.10.1/24 dev enp0s8.10
+sudo ip addr add 192.168.20.1/24 dev enp0s8.20
+```
+<img width="792" height="72" alt="image" src="https://github.com/user-attachments/assets/ea35004f-fe76-409f-95c7-91d09b97c592" />
+
+
+### 3.5 Verificar que quedo bien
+
+```bash
+ip addr show enp0s8.10
+ip addr show enp0s8.20
+ip route show
+```
+
+La salida deberia mostrar algo asi:
+
+```
+inet 192.168.10.1/24
+inet 192.168.20.1/24
+```
+<img width="826" height="456" alt="image" src="https://github.com/user-attachments/assets/59927b58-19a1-4a65-b50c-827f0eecc6ab" />
+
+### 3.6 Hacer la configuracion permanente (sobrevive reinicios)
+
+Abran el archivo de interfaces:
+
+```bash
+sudo nano /etc/network/interfaces
+```
+
+Agregen esto al final del archivo:
+
+```
+auto enp0s3
+iface enp0s3 inet manual
+    up ifconfig $IFACE 0.0.0.0 up
+
+auto enp0s3.10
+iface enp0s3.10 inet static
+    address 192.168.10.1
+    netmask 255.255.255.0
+    vlan-raw-device enp0s3
+
+auto enp0s3.20
+iface enp0s3.20 inet static
+    address 192.168.20.1
+    netmask 255.255.255.0
+    vlan-raw-device enp0s3
+```
+
+Guardar con `Ctrl+O` -> `Enter` -> `Ctrl+X`
+
+### 3.7 Reiniciar la red
+
+```bash
+sudo systemctl restart networking
+```
+
+### 3.8 Verificacion final
+
+```bash
+ip addr show | grep -E "enp0s3|inet"
+```
+
+---
+
+## Paso 4: Verificar que Grafana este corriendo
+
+```bash
+sudo systemctl status grafana-server
+```
+
+Si todo salio bien, deberia aparecer:
+
+```
+Active: active (running)
+```
+<img width="907" height="495" alt="image" src="https://github.com/user-attachments/assets/21a4f730-6800-4cda-afbe-dd89c403e83a" />
 
 
 
