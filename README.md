@@ -366,6 +366,31 @@ Para aplicar y validar los cambios, se ejecutaron los siguientes comandos en la 
 <img width="815" height="159" alt="Captura de pantalla 2026-05-03 204325" src="https://github.com/user-attachments/assets/fe4450da-a8ec-4ec6-8bc4-d429da677db1" />
 
 
+# CREACIÓN DE MV Rocky Linux CON SU RESPECTIVA CREACIÓN DE RED PARA LA COMUNICACIÓN CON EL SWITCH Y ROUTER Y LA ASIGNACIÓN DE IP ESTATICA:
+<img width="1919" height="1037" alt="image" src="https://github.com/user-attachments/assets/573f00b3-8a64-4b1b-8f91-b0b7bf8b8a92" />
+
+# Creación de la IP en Rocky
+<img width="660" height="499" alt="image" src="https://github.com/user-attachments/assets/076bc157-d8c7-49bd-baf0-e91315d304df" />
+<img width="651" height="137" alt="image" src="https://github.com/user-attachments/assets/1a6a1d65-d79c-41e7-819d-e8b6c6a80979" />
+
+Se observa que la IP queda configurada en Rocky
+<img width="657" height="452" alt="image" src="https://github.com/user-attachments/assets/04abe758-3135-4b96-90ae-13fa4a62324e" />
+
+# Creación del contendor de Fedora dentro de Rocky Linux
+<img width="679" height="517" alt="image" src="https://github.com/user-attachments/assets/f5d4fb5b-ac23-4cd9-87c6-6000d887ca97" />
+Se observa que, aparece root@79f101acddf2, esto indica que nos encontramos dentro de Fedora.
+
+# Nombre del contenedor
+<img width="1899" height="407" alt="image" src="https://github.com/user-attachments/assets/3f65834f-413b-4dcc-8117-d40136e17263" />
+
+# Configuración de IP en Fedora:
+<img width="1775" height="578" alt="image" src="https://github.com/user-attachments/assets/3419c75c-ea6f-436f-9d6d-ffe0f2bba705" />
+
+
+
+
+
+
 
 
 
