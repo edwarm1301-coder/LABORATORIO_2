@@ -323,6 +323,47 @@ Active: active (running)
 ```
 <img width="907" height="495" alt="image" src="https://github.com/user-attachments/assets/21a4f730-6800-4cda-afbe-dd89c403e83a" />
 
+## Instalación de Ubuntu en VirtualBox
+### Para el despliegue del servidor, se optó por una virtualización utilizando Oracle VM VirtualBox, siguiendo estos pasos clave:
+
+#### Creación de la VM: Se asignaron recursos de hardware consistentes con los requisitos mínimos de Ubuntu Server (2GB RAM, 1 vCPU, 20GB Disco VDI).
+
+#### Configuración de Almacenamiento: Se cargó la imagen ISO oficial de Ubuntu Server 24.04 (o la versión que usaras) en el controlador IDE virtual.
+
+#### Proceso de Instalación:
+
+- Selección de idioma y disposición de teclado.
+
+- Instalación de la versión "Minimized" para optimizar recursos.
+
+- Configuración del perfil de usuario inicial (vboxuser).
+
+- Instalación del servidor OpenSSH para permitir la gestión remota.
+
+<img width="1278" height="642" alt="Captura de pantalla 2026-05-03 203633" src="https://github.com/user-attachments/assets/fc931aca-c0a5-4a04-8485-581f79d14c66" />
+
+## Configuración de Red (Asignación de IP Estática)
+### Una vez instalado el sistema, se procedió a realizar la configuración de red manual para garantizar la visibilidad del servidor en el segmento de red deseado.
+
+#### Modificación del Adaptador de Red
+En la configuración de VirtualBox, se cambió el adaptador de red de NAT a Adaptador Puente (Bridge). Esto permite que la máquina virtual sea tratada como un nodo físico más dentro de la red local, recibiendo tráfico directamente desde el router/gateway.
+
+#### Configuración de Netplan
+En Ubuntu, la gestión de red se realizó a través de Netplan, editando el archivo de configuración YAML en /etc/netplan/. Se desactivó el protocolo DHCP y se definieron los parámetros estáticos:
+
+- Interfaz: enp0s3
+- Dirección IPv4: 192.168.20.13 con máscara /24.
+- Gateway: 192.168.20.1 (Puerta de enlace predeterminada).
+- DNS: Se configuraron los servidores de Google (8.8.8.8, 8.8.4.4) para asegurar la resolución de nombres.
+
+<img width="810" height="267" alt="Captura de pantalla 2026-05-03 204129" src="https://github.com/user-attachments/assets/a83ba52a-10ca-4406-9485-e9c04d48ab64" />
+
+#### Comandos de Verificación
+Para aplicar y validar los cambios, se ejecutaron los siguientes comandos en la terminal:
+- sudo netplan apply: Para aplicar la nueva configuración sin reiniciar.
+- IP addr show enp0s3: Para confirmar que la interfaz tiene asignada la IP correcta.
+
+<img width="815" height="159" alt="Captura de pantalla 2026-05-03 204325" src="https://github.com/user-attachments/assets/fe4450da-a8ec-4ec6-8bc4-d429da677db1" />
 
 
 
